@@ -6,3 +6,11 @@ output "admin_access_keys" {
   } }
   sensitive = true
 }
+
+output "web_bucket_endpoints" {
+  value = {
+    for k, b in aws_s3_bucket.web :
+    k => aws_s3_bucket_website_configuration.web[k].website_endpoint
+  }
+  description = "Website endpoints for public web S3 buckets"
+}

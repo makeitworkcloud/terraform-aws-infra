@@ -24,13 +24,33 @@ resource "aws_s3_bucket" "public" {
   }
 }
 
-moved {
-  from = aws_s3_bucket.private["makeitwork.cloud"]
-  to   = aws_s3_bucket.web["makeitwork.cloud"]
+resource "aws_s3_bucket_public_access_block" "public" {
+  for_each                = aws_s3_bucket.public
+  bucket                  = each.value.id
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
-moved {
-  from = aws_s3_bucket.private["onion.makeitwork.cloud"]
-  to   = aws_s3_bucket.web["onion.makeitwork.cloud"]
+
+resource "aws_s3_bucket_policy" "public" {
+  for_each = aws_s3_bucket.public
+
+  bucket = each.value.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = "*"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = "${each.value.arn}/*"
+      }
+    ]
+  })
 }
 
 resource "aws_s3_bucket" "web" {
@@ -43,5 +63,45 @@ resource "aws_s3_bucket" "web" {
 
   lifecycle {
     prevent_destroy = true
+  }
+}
+
+# Make "web" buckets publicly accessible
+resource "aws_s3_bucket_public_access_block" "web" {
+  for_each                = aws_s3_bucket.web
+  bucket                  = each.value.id
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "web" {
+  for_each = aws_s3_bucket.web
+
+  bucket = each.value.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = "*"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = "${each.value.arn}/*"
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket_website_configuration" "web" {
+  for_each = aws_s3_bucket.web
+
+  bucket = each.value.id
+
+  index_document {
+    suffix = "index.html"
   }
 }
