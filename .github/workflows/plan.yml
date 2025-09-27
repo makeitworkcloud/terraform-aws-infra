@@ -1,0 +1,27 @@
+---
+name: Plan
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+env:
+  SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+
+jobs:
+  plan:
+    runs-on: arc-dind
+    container: registry.docker-registry.svc:5000/makeitworkcloud/terraform-runner:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Git as root
+        run: git config --global --add safe.directory '*'
+
+      - name: Run tests
+        run: make test
+
+      - name: Terraform plan
+        run: make plan
