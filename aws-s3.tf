@@ -1,8 +1,3 @@
-moved {
-  from = aws_s3_bucket.managed
-  to   = aws_s3_bucket.private
-}
-
 resource "aws_s3_bucket" "private" {
   for_each = local.s3_private_buckets
   bucket   = each.value
@@ -27,6 +22,15 @@ resource "aws_s3_bucket" "public" {
   lifecycle {
     prevent_destroy = true
   }
+}
+
+moved {
+  from = aws_s3_bucket.private["makeitwork.cloud"]
+  to   = aws_s3_bucket.web["makeitwork.cloud"]
+}
+moved {
+  from = aws_s3_bucket.private["onion.makeitwork.cloud"]
+  to   = aws_s3_bucket.web["onion.makeitwork.cloud"]
 }
 
 resource "aws_s3_bucket" "web" {

@@ -7,10 +7,11 @@ locals {
   s3_private_buckets = toset([
     "mitw-tf-aws-infra",
     "mitw-tf-github-repos",
-    "tf-repos",
+    "tf-repos"
+  ])
+  s3_public_buckets = toset([])
+  s3_web_buckets = toset([
     "makeitwork.cloud",
     "onion.makeitwork.cloud"
   ])
-  s3_public_buckets = toset([])
-  s3_web_buckets    = toset([])
 }
