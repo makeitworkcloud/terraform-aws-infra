@@ -4,10 +4,13 @@ data "sops_file" "secret_vars" {
 
 locals {
   admin_users = toset(["svc-terraform-admin"])
-  s3_buckets = toset([
-    "makeitwork.cloud",
-    "onion.makeitwork.cloud",
+  s3_private_buckets = toset([
+    "mitw-tf-aws-infra",
+    "mitw-tf-github-repos",
     "tf-repos",
-    "mitw-tf-aws-infra"
+    "makeitwork.cloud",
+    "onion.makeitwork.cloud"
   ])
+  s3_public_buckets = toset([])
+  s3_web_buckets    = toset([])
 }
