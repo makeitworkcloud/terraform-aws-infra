@@ -6,7 +6,7 @@ S3_KEY        := $(shell sops decrypt secrets/secrets.yaml | grep ^s3_key       
 S3_ACCESS_KEY := $(shell sops decrypt secrets/secrets.yaml | grep ^s3_access_key | cut -d ' ' -f 2)
 S3_SECRET_KEY := $(shell sops decrypt secrets/secrets.yaml | grep ^s3_secret_key | cut -d ' ' -f 2)
 
-.PHONY: help init plan apply test pre-commit-check-deps pre-commit-install-hooks argcd-login
+.PHONY: help init plan apply migrate test pre-commit-check-deps pre-commit-install-hooks argcd-login
 
 help:
 	@echo "General targets"
@@ -22,6 +22,7 @@ help:
 	@echo "\ttest: run pre-commmit checks"
 	@echo "\tplan: run 'terraform plan'"
 	@echo "\tapply: run 'terraform apply'"
+	@echo "\tmigrate; run terraform init -migrate-state"
 	@echo
 	@echo "One-time repo init targets"
 	@echo "--------------------------"
@@ -46,6 +47,10 @@ plan: init .terraform/plan
 apply: test plan
 	@${TERRAFORM} apply -auto-approve -compact-warnings .terraform/plan
 	@rm -f .terraform/plan
+
+migrate:
+	@echo "First use -make init- using the old S3 backend, then run -make migrate- to use the new one."
+	@${TERRAFORM} init -migrate-state -backend-config="key=${S3_KEY}" -backend-config="bucket=${S3_BUCKET}" -backend-config="region=${S3_REGION}" -backend-config="access_key=${S3_ACCESS_KEY}" -backend-config="secret_key=${S3_SECRET_KEY}"
 
 test: .git/hooks/pre-commit
 	@pre-commit run -a
