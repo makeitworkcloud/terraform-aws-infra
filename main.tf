@@ -6,6 +6,7 @@ locals {
   admin_users = toset(["svc-terraform-admin"])
   s3_private_buckets = toset([
     "mitw-tf-aws-infra",
+    "mitw-tf-cloudflare-infra",
     "mitw-tf-github-repos"
   ])
   s3_public_buckets = toset([])
